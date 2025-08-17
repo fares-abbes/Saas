@@ -23,9 +23,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { subjects } from "@/constants";
+import { createCompanion } from "@/lib/actions/companions.actions";
+import { redirect } from "next/navigation";
 
 const formSchema = z.object({
-  username: z.string().min(1, { message: "companion is required" }),
+  name: z.string().min(1, { message: "companion is required" }), // changed from username to name
   subject: z.string().min(1, { message: "subject is required" }),
   topic: z.string().min(1, { message: "topic is required" }),
   voice: z.string().min(1, { message: "voice is required" }),
@@ -39,7 +41,7 @@ const CompanionForm = () => {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "",
       subject: "",
       topic: "",
       voice: "",
@@ -48,8 +50,13 @@ const CompanionForm = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<FormSchemaType> = (values) => {
-    console.log(values);
+  const onSubmit = async (values: FormSchemaType) => {
+    const companion = await createCompanion(values);
+    if (companion) {
+      redirect(`/companions/${companion.id}`);
+    } else {
+      redirect("/");
+    }
   };
 
   return (
@@ -58,7 +65,7 @@ const CompanionForm = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
-            name="username"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Companion name</FormLabel>
