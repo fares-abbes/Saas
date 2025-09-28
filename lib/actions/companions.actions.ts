@@ -1,6 +1,7 @@
 "use server"
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseClient } from "../supabase";
+import { error } from "console";
 
 export const createCompanion = async (FormData: CreateCompanion) => {
     const{userId:author}= await auth();
@@ -36,3 +37,9 @@ export const getAllCompanions = async ({limit =10,page =1,subject ,topic}:GetAll
 }
 
 
+export const getCompanion= async (id:string) => {  
+    const supabase = createSupabaseClient();
+   const {data,error} = await supabase.from('companions').select().eq('id',id);
+   if(error) return console.log(error);
+   return data[0];
+}
